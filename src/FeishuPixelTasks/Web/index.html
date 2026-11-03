@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>飞书像素任务</title><link rel="stylesheet" href="styles.css">
+</head>
+<body data-skin="oak">
+<main id="app">
+  <header id="titlebar">
+    <span class="app-icon" aria-hidden="true"></span><h1>飞书任务</h1>
+    <button id="skin" title="选择皮肤" aria-label="选择皮肤">皮肤</button>
+    <button id="refresh" title="刷新任务（F5）">刷新</button>
+    <button id="fold" class="window-button" aria-label="折叠窗口" title="折叠 / 展开">−</button>
+    <button id="minimize" class="window-button" aria-label="最小化" title="最小化">▁</button>
+    <button id="close" class="window-button" aria-label="关闭窗口" title="关闭">×</button>
+  </header>
+  <section id="controls" aria-label="窗口透明度">
+    <label for="opacity">透明度</label><input id="opacity" type="range" min="40" max="100" value="100"><output id="opval" for="opacity">100%</output>
+  </section>
+  <nav id="toolbar" aria-label="任务工具">
+    <button id="add">+ 新任务</button>
+    <div class="filters" aria-label="任务筛选"><button data-filter="todo" aria-pressed="true">待办</button><button data-filter="done" aria-pressed="false">已完成</button></div>
+    <button id="settings" class="push-right">设置</button>
+  </nav>
+  <section id="tasklist" aria-label="任务列表"></section>
+  <footer><span class="sync-light" aria-hidden="true"></span><span id="status" role="status">正在加载…</span><button id="resize" aria-label="调整窗口大小" title="拖动调整大小">◢</button></footer>
+</main>
+<dialog id="skin-dialog"><form method="dialog"><div class="dialog-title"><h2>选择皮肤</h2><button aria-label="关闭皮肤面板">×</button></div></form>
+  <button class="skin-option" data-skin="oak"><span class="swatch oak"></span><span>草方块 · 原木工作台<small>暖色原木 / 羊皮纸 / 绿宝石</small></span></button>
+  <button class="skin-option" data-skin="slate"><span class="swatch slate"></span><span>深板岩 · 红石控制台<small>冷色矿石 / 红石 / 绿宝石</small></span></button>
+</dialog>
+<dialog id="task-dialog"><form id="task-form">
+  <div class="dialog-title"><h2 id="task-heading">新建本地任务</h2><button type="button" data-dismiss aria-label="关闭任务编辑">×</button></div>
+  <input type="hidden" id="task-id"><label for="task-title">任务内容</label><textarea id="task-title" required maxlength="3000" rows="4"></textarea>
+  <label for="task-due">截止日期（可不填）</label><input id="task-due" type="date">
+  <label for="task-url">打开链接（可不填）</label><input id="task-url" type="url" placeholder="https://…">
+  <div class="dialog-actions"><button type="button" data-dismiss>取消</button><button type="submit" class="green">保存任务</button></div>
+</form></dialog>
+<dialog id="settings-dialog"><form id="settings-form">
+  <div class="dialog-title"><h2>应用设置</h2><button type="button" data-dismiss aria-label="关闭设置">×</button></div>
+  <label for="mode">任务来源</label><select id="mode"><option value="local">本地任务</option><option value="larkcli">连接飞书（lark-cli）</option></select>
+  <section id="cli-options">
+    <label for="cli-path">lark-cli.exe 路径</label><div class="input-row"><input id="cli-path" value="lark-cli"><button id="choose-cli" type="button">浏览</button></div>
+    <p class="help">使用原程序的 lark-cli 接口，需要有效登录或会话令牌。临时令牌到期后需重新导入。</p>
+    <p id="credential-state" class="help"></p><div class="button-row"><button id="import-credentials" type="button">导入凭据</button><button id="clear-credentials" type="button">清除凭据</button></div>
+    <label class="check"><input id="auto-sync" type="checkbox">每 5 分钟自动同步</label>
+  </section>
+  <label class="check"><input id="topmost" type="checkbox">窗口始终置顶</label>
+  <div class="section-divider"></div><div class="button-row"><button id="import" type="button">导入旧版任务</button><button id="export" type="button">导出任务</button></div>
+  <p class="help">旧版任务导入为本地副本。凭据仅在当前 Windows 用户下加密保存，导出不包含凭据。</p>
+  <div class="dialog-actions"><button type="button" data-dismiss>取消</button><button type="submit" class="green">保存设置</button></div>
+</form></dialog>
+<dialog id="confirm-dialog"><form method="dialog"><h2 id="confirm-title">确认操作</h2><p id="confirm-text"></p><div class="dialog-actions"><button value="cancel">取消</button><button value="confirm" class="green">确认</button></div></form></dialog>
+<div id="toast" role="alert" hidden></div>
+<script src="app.js"></script>
+</body></html>

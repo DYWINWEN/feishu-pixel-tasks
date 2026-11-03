@@ -1,0 +1,16 @@
+{
+  "name": "feishu-pixel-tasks",
+  "version": "1.0.0",
+  "description": "Minecraft-inspired Chinese pixel task widget for Windows",
+  "scripts": {
+    "preview": "node scripts/preview-server.js",
+    "test": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  },
+  "private": true
+}
