@@ -1,0 +1,79 @@
+name: Build and test
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-test-results
+          path: test-results/
+  windows:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rid: [win-x64, win-x86]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test and publish self-contained Windows application
+        shell: pwsh
+        run: ./scripts/build.ps1 -Runtime ${{ matrix.rid }}
+      - name: Native WebView2 startup and screenshot smoke test
+        shell: pwsh
+        run: |
+          $output = Join-Path $PWD 'native-smoke'
+          $process = Start-Process "dist/${{ matrix.rid }}/FeishuPixelTasks.exe" -ArgumentList '--smoke-test',"`"$output`"" -PassThru
+          if (-not $process.WaitForExit(90000)) { $process.Kill(); throw 'Native smoke test timed out' }
+          if ($process.ExitCode -ne 0 -or -not (Test-Path "$output/success.txt")) {
+            if (Test-Path "$output/error.txt") { Get-Content "$output/error.txt" }
+            throw 'Native smoke test failed'
+          }
+          Get-Content "$output/success.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-smoke-${{ matrix.rid }}
+          path: native-smoke/*.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FeishuPixelTasks-${{ matrix.rid }}
+          path: dist/FeishuPixelTasks-${{ matrix.rid }}.zip
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ui, windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: FeishuPixelTasks-*
+          merge-multiple: true
+          path: packages
+      - name: Publish verified packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd packages
+          sha256sum *.zip > SHA256SUMS.txt
+          gh release create "$GITHUB_REF_NAME" *.zip SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --title "飞书像素任务 $GITHUB_REF_NAME" --notes "Windows 11 64 位请选择 win-x64。解压完整文件夹后运行 FeishuPixelTasks.exe。首次使用飞书同步请在设置中配置有效的 lark-cli；本地任务无需登录。"
