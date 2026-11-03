@@ -8,7 +8,6 @@
   <ItemGroup>
     <ProjectReference Include="../FeishuPixelTasks.Core/FeishuPixelTasks.Core.csproj" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
     <Content Include="Web/**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <Target Name="RemoveUnusedWpfReference" BeforeTargets="ResolveAssemblyReferences">

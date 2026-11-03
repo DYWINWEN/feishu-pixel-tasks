@@ -116,8 +116,8 @@ internal sealed class MainForm : Form
             case "resize": ReleaseCapture(); SendMessage(Handle, 0xA1, 17, 0); return;
             case "fold":
                 folded = !folded;
-                if (folded) { expandedHeight = Height; MinimumSize = new Size(420, 70); Height = 70; }
-                else { MinimumSize = new Size(420, 380); Height = expandedHeight; }
+                if (folded) { expandedHeight = Height; MinimumSize = new Size(420 * DeviceDpi / 96, 90 * DeviceDpi / 96); Height = MinimumSize.Height; }
+                else { MinimumSize = new Size(420 * DeviceDpi / 96, 380 * DeviceDpi / 96); Height = expandedHeight; }
                 return;
             case "open":
                 var task = service.State.Tasks.Single(t => t.Guid == m.GetProperty("guid").GetString());

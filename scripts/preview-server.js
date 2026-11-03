@@ -1,4 +1,43 @@
-const http=require('http'),fs=require('fs'),path=require('path');
-const root=path.resolve(__dirname,'../src/FeishuPixelTasks/Web');
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.ttf':'font/ttf'};
-http.createServer((req,res)=>{let target;try{target=path.resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));}catch{res.writeHead(400).end();return;}if(target===root)target=path.join(root,'index.html');if(!target.startsWith(root+path.sep)){res.writeHead(403).end();return;}fs.readFile(target,(error,data)=>{if(error){res.writeHead(404).end();return;}res.writeHead(200,{'Content-Type':mime[path.extname(target)]||'application/octet-stream','Cache-Control':'no-store'});res.end(data);});}).listen(4317,'127.0.0.1',()=>console.log('Preview: http://127.0.0.1:4317'));
+const http = require("http"),
+  fs = require("fs"),
+  path = require("path");
+const root = path.resolve(__dirname, "../src/FeishuPixelTasks/Web");
+const mime = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".ttf": "font/ttf",
+};
+http
+  .createServer((req, res) => {
+    let target;
+    try {
+      target = path.resolve(
+        root,
+        "." + decodeURIComponent(new URL(req.url, "http://localhost").pathname),
+      );
+    } catch {
+      res.writeHead(400).end();
+      return;
+    }
+    if (target === root) target = path.join(root, "index.html");
+    if (!target.startsWith(root + path.sep)) {
+      res.writeHead(403).end();
+      return;
+    }
+    fs.readFile(target, (error, data) => {
+      if (error) {
+        res.writeHead(404).end();
+        return;
+      }
+      res.writeHead(200, {
+        "Content-Type":
+          mime[path.extname(target)] || "application/octet-stream",
+        "Cache-Control": "no-store",
+      });
+      res.end(data);
+    });
+  })
+  .listen(4317, "127.0.0.1", () =>
+    console.log("Preview: http://127.0.0.1:4317"),
+  );
