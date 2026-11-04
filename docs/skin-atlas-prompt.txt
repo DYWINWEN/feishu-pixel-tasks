@@ -1,0 +1,12 @@
+Use case: precise-object-edit
+Asset type: exact UI skin texture atlas for a working desktop application. The supplied image is the edit target, not loose inspiration.
+Preserve the input's pixel dimensions/aspect ratio, every existing panel bounding box, all material colors, detailed voxel/pixel grain, bevels, shadows, corner ornaments, positions and borders as precisely as possible. Do not redesign or simplify any materials.
+Surgically remove ALL typography from the ENTIRE image: every Chinese glyph, number, percent, timestamp, dash/minus, close x, labels. Fill their former areas with seamless continuation of their original material backgrounds. Leave absolutely NO lettering.
+Also remove every dashed horizontal divider inside all 3 task cards.
+Keep the two green and gray button shapes in the FIRST task card, with their beautiful material, outline and bevel unchanged, but remove their lettering.
+In the SECOND and THIRD task cards, remove both button shapes entirely and repair with the underlying card surface. These two cards must become COMPLETELY EMPTY bordered panels. Their full interiors must contain only uninterrupted parchment/slate surface.
+In the opacity row remove EVERYTHING inside its outer bordered panel: label, percentage, slider track and handle. Repair its whole interior to an uninterrupted matching material surface. Keep the panel's exact border.
+In the header keep the app icon and all FOUR blank gray button shapes, preserving their exact locations. Remove any title text. Keep existing ornamental redstone wire if present.
+In the footer remove text only, preserving its material and corner ornaments/wires.
+Preserve the right scrollbar and exterior window frame.
+Output is a faithful text-free material plate for nine-slice UI rendering; exactly same flat front-on layout as reference, no new objects, no watermark. Do not add any labels or guides. Opaque background.

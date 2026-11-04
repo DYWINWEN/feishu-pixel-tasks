@@ -7,4 +7,4 @@
 
 The application is based on a user-supplied PowerShell/WebView2 task-widget prototype. The original private archive and runtime data are not distributed. The `lark-cli` command contract is preserved; the CLI executable itself is not included.
 
-All interface textures are generated with CSS. No Minecraft game textures or logos are bundled. This project is not affiliated with Mojang, Microsoft Minecraft, or Feishu/Lark.
+The two texture atlases in `Web/assets/` were produced with the built-in image generation tool from the user's approved UI concepts, with all task text removed. They are project UI assets, rendered using nine-slice Canvas decoration behind live DOM controls. The generation prompt is in `docs/skin-atlas-prompt.txt`. No Minecraft game textures or logos are bundled. This project is not affiliated with Mojang, Microsoft Minecraft, or Feishu/Lark.

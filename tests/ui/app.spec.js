@@ -1,7 +1,11 @@
 const { test, expect } = require("@playwright/test");
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
-  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await SkinRenderer.ready;
+    await SkinRenderer.paint();
+  });
 });
 test("both skins use the embedded Chinese pixel font and persist selection", async ({
   page,
@@ -15,42 +19,50 @@ test("both skins use the embedded Chinese pixel font and persist selection", asy
   await expect(page.locator("body")).toHaveAttribute("data-skin", "slate");
   await page.reload();
   await expect(page.locator("body")).toHaveAttribute("data-skin", "slate");
+  await page.evaluate(() => SkinRenderer.paint());
   await page.screenshot({ path: "test-results/slate.png" });
   await page.getByRole("button", { name: "选择皮肤" }).click();
   await page.locator(".skin-option[data-skin=oak]").click();
+  await page.evaluate(() => SkinRenderer.paint());
   await page.screenshot({ path: "test-results/oak.png" });
 });
 test("create, edit, complete, restore, delete and reload local tasks", async ({
   page,
 }) => {
+  await page.locator("#tools").click();
   await page.locator("#add").click();
   await page.locator("#task-title").fill("端到端测试任务");
   await page.locator("#task-due").fill("2026-12-31");
   await page.getByRole("button", { name: "保存任务" }).click();
   const card = page.locator(".task").filter({ hasText: "端到端测试任务" });
   await expect(card).toBeVisible();
-  await card.getByRole("button", { name: "编辑", exact: true }).click();
+  await card.click({ button: "right" });
+  await page.locator("#menu-edit").click();
   await page.locator("#task-title").fill("修改后的任务");
   await page.getByRole("button", { name: "保存任务" }).click();
   const edited = page.locator(".task").filter({ hasText: "修改后的任务" });
   await edited.getByRole("button", { name: "完成", exact: true }).click();
   await page.getByRole("button", { name: "确认", exact: true }).click();
   await expect(edited).toHaveCount(0);
+  await page.locator("#tools").click();
   await page.getByRole("button", { name: "已完成", exact: true }).click();
   await expect(edited).toBeVisible();
   await edited.getByRole("button", { name: "恢复", exact: true }).click();
   await page.getByRole("button", { name: "确认", exact: true }).click();
+  await page.locator("#tools").click();
   await page.getByRole("button", { name: "待办", exact: true }).click();
   await expect(edited).toBeVisible();
   await page.reload();
   await expect(edited).toBeVisible();
-  await edited.getByRole("button", { name: "删除", exact: true }).click();
+  await edited.click({ button: "right" });
+  await page.locator("#menu-delete").click();
   await page.getByRole("button", { name: "确认", exact: true }).click();
   await expect(edited).toHaveCount(0);
 });
 test("untrusted titles are text and non-web URLs cannot be submitted", async ({
   page,
 }) => {
+  await page.locator("#tools").click();
   await page.locator("#add").click();
   await page
     .locator("#task-title")
@@ -69,6 +81,7 @@ test("untrusted titles are text and non-web URLs cannot be submitted", async ({
 for (const width of [420, 680, 900])
   test(`layout remains usable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 740 });
+    await page.locator("#tools").click();
     await page.locator("#add").click();
     await page.locator("#task-title").fill("很长的中文任务说明".repeat(20));
     await page.getByRole("button", { name: "保存任务" }).click();
@@ -85,6 +98,7 @@ for (const width of [420, 680, 900])
     await expect(
       last.getByRole("button", { name: "完成", exact: true }),
     ).toBeInViewport();
+    await page.locator("#tools").click();
     await page.locator("#settings").click();
     await expect(page.locator("#settings-dialog")).toBeInViewport();
     await page.screenshot({ path: `test-results/settings-${width}.png` });
@@ -96,13 +110,16 @@ test("opacity persists, settings switch, empty state and fold", async ({
   await page.locator("#opacity").dispatchEvent("change");
   await page.reload();
   await expect(page.locator("#opval")).toHaveText("64%");
+  await page.locator("#tools").click();
   await page.getByRole("button", { name: "已完成", exact: true }).click();
   await expect(page.locator(".empty")).toContainText("还没有");
+  await page.locator("#tools").click();
   await page.locator("#settings").click();
   await page.locator("#mode").selectOption("larkcli");
   await expect(page.locator("#cli-options")).toBeVisible();
   await page.locator("#topmost").check();
   await page.getByRole("button", { name: "保存设置" }).click();
+  await page.locator("#tools").click();
   await page.locator("#settings").click();
   await expect(page.locator("#mode")).toHaveValue("larkcli");
   await expect(page.locator("#topmost")).toBeChecked();

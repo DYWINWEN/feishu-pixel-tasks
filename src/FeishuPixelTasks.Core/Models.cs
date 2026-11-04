@@ -4,7 +4,7 @@ namespace FeishuPixelTasks.Core;
 
 public sealed record TaskItem(string Guid, string Summary, string Due = "", string Url = "", string Status = "todo", string Source = "local");
 public sealed record PendingAction(string Guid, int Attempts = 0, string Error = "");
-public sealed record Preferences(string Skin = "oak", int Opacity = 100, bool TopMost = false, string Mode = "local", string CliPath = "lark-cli", bool AutoSync = false);
+public sealed record Preferences(string Skin = "oak", int Opacity = 92, bool TopMost = false, string Mode = "local", string CliPath = "lark-cli", bool AutoSync = false);
 public sealed class AppState
 {
     public int Version { get; set; } = 1;

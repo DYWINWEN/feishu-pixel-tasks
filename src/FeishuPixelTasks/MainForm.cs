@@ -19,7 +19,7 @@ internal sealed class MainForm : Form
     private readonly System.Windows.Forms.Timer timer = new() { Interval = 300000 };
     private readonly string? smoke;
     private bool busy, ready, smokeStarted, folded;
-    private int expandedHeight = 830;
+    private int expandedHeight = 873;
     private Point? dragStart;
 
     public MainForm(string? smokePath)
@@ -33,7 +33,7 @@ internal sealed class MainForm : Form
             service.State.Tasks = [new("demo-1", "整理项目阶段性成果", "2026-12-15"), new("demo-2", "更新团队任务清单", "2026-12-20"), new("demo-3", "汇总本月工作进展，并安排下一阶段的协作计划。")];
         }
         Text = "飞书像素任务"; FormBorderStyle = FormBorderStyle.None;
-        AutoScaleMode = AutoScaleMode.Dpi; MinimumSize = new Size(420, 380); Size = new Size(680, 830);
+        AutoScaleMode = AutoScaleMode.Dpi; MinimumSize = new Size(420, 380); Size = new Size(680, 873);
         StartPosition = FormStartPosition.CenterScreen;
         var area = Screen.FromControl(this).WorkingArea;
         Size = new Size(Math.Min(Width, area.Width), Math.Min(Height, area.Height));
@@ -116,7 +116,7 @@ internal sealed class MainForm : Form
             case "resize": ReleaseCapture(); SendMessage(Handle, 0xA1, 17, 0); return;
             case "fold":
                 folded = !folded;
-                if (folded) { expandedHeight = Height; MinimumSize = new Size(420 * DeviceDpi / 96, 90 * DeviceDpi / 96); Height = MinimumSize.Height; }
+                if (folded) { expandedHeight = Height; MinimumSize = new Size(420 * DeviceDpi / 96, (int)Math.Ceiling(ClientSize.Width * 176.0 / 1107)); Height = MinimumSize.Height; }
                 else { MinimumSize = new Size(420 * DeviceDpi / 96, 380 * DeviceDpi / 96); Height = expandedHeight; }
                 return;
             case "open":

@@ -3,7 +3,7 @@
     <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms><EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationManifest>app.manifest</ApplicationManifest><AssemblyName>FeishuPixelTasks</AssemblyName>
-    <Version>1.0.0</Version><RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
+    <Version>1.1.0</Version><RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../FeishuPixelTasks.Core/FeishuPixelTasks.Core.csproj" />

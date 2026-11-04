@@ -13,7 +13,12 @@
   <body data-skin="oak">
     <main id="app">
       <header id="titlebar">
-        <span class="app-icon" aria-hidden="true"></span>
+        <button
+          id="tools"
+          class="app-icon"
+          aria-label="任务工具"
+          title="任务工具：新建、筛选、设置"
+        ></button>
         <h1>飞书任务</h1>
         <button id="skin" title="选择皮肤" aria-label="选择皮肤">皮肤</button>
         <button id="refresh" title="刷新任务（F5）">刷新</button>
@@ -24,14 +29,6 @@
           title="折叠 / 展开"
         >
           −
-        </button>
-        <button
-          id="minimize"
-          class="window-button"
-          aria-label="最小化"
-          title="最小化"
-        >
-          ▁
         </button>
         <button
           id="close"
@@ -52,15 +49,8 @@
           value="100"
         /><output id="opval" for="opacity">100%</output>
       </section>
-      <nav id="toolbar" aria-label="任务工具">
-        <button id="add">+ 新任务</button>
-        <div class="filters" aria-label="任务筛选">
-          <button data-filter="todo" aria-pressed="true">待办</button
-          ><button data-filter="done" aria-pressed="false">已完成</button>
-        </div>
-        <button id="settings" class="push-right">设置</button>
-      </nav>
       <section id="tasklist" aria-label="任务列表"></section>
+<div id="task-scrollbar" role="scrollbar" aria-controls="tasklist" aria-orientation="vertical" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0" aria-label="滚动任务列表"></div>
       <footer>
         <span class="sync-light" aria-hidden="true"></span
         ><span id="status" role="status">正在加载…</span
@@ -69,6 +59,39 @@
         </button>
       </footer>
     </main>
+    <dialog id="tools-dialog">
+      <form method="dialog">
+        <div class="dialog-title">
+          <h2>任务工具</h2>
+          <button aria-label="关闭任务工具">×</button>
+        </div>
+      </form>
+      <nav id="toolbar" aria-label="任务工具">
+        <button id="add">+ 新任务</button>
+        <div class="filters" aria-label="任务筛选">
+          <button data-filter="todo" aria-pressed="true">待办</button
+          ><button data-filter="done" aria-pressed="false">已完成</button>
+        </div>
+        <button id="settings" class="push-right">设置</button>
+      </nav>
+      <button id="minimize">最小化到任务栏</button>
+      <p class="tool-help">
+        点击左上角方块或底部状态栏打开工具。右键任务可编辑或删除；Ctrl+N
+        新建任务，F5 刷新。
+      </p>
+    </dialog>
+    <dialog id="task-menu">
+      <form method="dialog">
+        <div class="dialog-title">
+          <h2>任务操作</h2>
+          <button aria-label="关闭任务操作">×</button>
+        </div>
+      </form>
+      <div class="task-menu-actions">
+        <button id="menu-edit">编辑任务</button
+        ><button id="menu-delete">删除任务</button>
+      </div>
+    </dialog>
     <dialog id="skin-dialog">
       <form method="dialog">
         <div class="dialog-title">
@@ -176,6 +199,7 @@
       </form>
     </dialog>
     <div id="toast" role="alert" hidden></div>
+    <script src="skin-renderer.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

@@ -3,7 +3,7 @@ const $ = (id) => document.getElementById(id);
 const native = Boolean(window.chrome?.webview);
 const defaults = {
   skin: "oak",
-  opacity: 100,
+  opacity: 92,
   topMost: false,
   mode: "local",
   cliPath: "lark-cli",
@@ -82,6 +82,7 @@ async function confirmAction(text, action) {
   d.showModal();
 }
 function editTask(task) {
+  closeTools();
   $("task-heading").textContent = task ? "编辑本地任务" : "新建本地任务";
   $("task-id").value = task?.guid || "";
   $("task-title").value = task?.summary || "";
@@ -89,6 +90,20 @@ function editTask(task) {
   $("task-url").value = task?.url || "";
   $("task-dialog").showModal();
   $("task-title").focus();
+}
+function closeTools() {
+  for (const id of ["tools-dialog", "task-menu"]) if ($(id).open) $(id).close();
+}
+function taskMenu(task) {
+  if (task.source !== "local" || busy) return;
+  $("menu-edit").onclick = () => editTask(task);
+  $("menu-delete").onclick = () => {
+    closeTools();
+    confirmAction("删除这条本地任务？", () =>
+      send("delete-task", { guid: task.guid }),
+    );
+  };
+  $("task-menu").showModal();
 }
 function render() {
   document.body.dataset.skin = state.settings.skin;
@@ -118,6 +133,18 @@ function render() {
         "task" + (p ? " pending" : "") + (t.status === "done" ? " done" : ""),
       );
     card.dataset.guid = t.guid;
+    card.classList.toggle("long", t.summary.length > 28);
+    card.tabIndex = 0;
+    card.oncontextmenu = (e) => {
+      e.preventDefault();
+      taskMenu(t);
+    };
+    card.onkeydown = (e) => {
+      if ((e.shiftKey && e.key === "F10") || e.key === "ContextMenu") {
+        e.preventDefault();
+        taskMenu(t);
+      }
+    };
     const row = el("div", "task-row");
     row.append(
       el("h2", "task-title", t.summary),
@@ -131,7 +158,7 @@ function render() {
     const actions = el("div", "task-actions");
     const done = button(
       p ? "待重试" : t.status === "done" ? "恢复" : "完成",
-      "green",
+      "green primary-action",
       () => {
         if (p) {
           send("refresh");
@@ -149,22 +176,29 @@ function render() {
     );
     done.disabled = busy;
     actions.append(done);
-    const open = button("打开", "", () => send("open", { guid: t.guid }));
-    open.disabled = !t.url;
-    open.title = t.url ? "在默认浏览器中打开" : "未设置任务链接";
+    const open = button("打开", "primary-action", () =>
+      t.url
+        ? send("open", { guid: t.guid })
+        : t.source === "local"
+          ? editTask(t)
+          : notify("此任务没有可打开的链接。"),
+    );
+    open.title = t.url ? "在默认浏览器中打开" : "打开本地任务详情";
     actions.append(open);
     if (t.source === "local") {
+      const extra = el("div", "task-tools");
       const edit = button("编辑", "minor", () => editTask(t));
       edit.disabled = busy;
-      actions.append(edit);
+      extra.append(edit);
       const del = button("删除", "minor", () =>
         confirmAction("删除这条本地任务？", () =>
           send("delete-task", { guid: t.guid }),
         ),
       );
       del.disabled = busy;
-      actions.append(del);
-    } else actions.append(el("span", "source", "飞书"));
+      extra.append(del);
+      card.append(extra);
+    }
     card.append(actions);
     if (p) {
       const line = el(
@@ -221,7 +255,12 @@ function render() {
       : "未保存凭据，可使用已登录 CLI 的环境";
     $("cli-path").value = state.settings.cliPath;
   }
-  document.fonts.ready.then(() => send("rendered"));
+  Promise.all([document.fonts.ready, window.SkinRenderer.ready]).then(
+    async () => {
+      await window.SkinRenderer.paint();
+      send("rendered");
+    },
+  );
 }
 function receive(data) {
   if (data.type === "state") {
@@ -235,6 +274,17 @@ function receive(data) {
 if (native)
   window.chrome.webview.addEventListener("message", (e) => receive(e.data));
 $("skin").onclick = () => $("skin-dialog").showModal();
+$("tools").onclick = () => $("tools-dialog").showModal();
+$("status").tabIndex = 0;
+$("status").setAttribute("role", "button");
+$("status").setAttribute("aria-label", "状态与任务工具");
+$("status").onclick = () => $("tools-dialog").showModal();
+$("status").onkeydown = (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    $("tools-dialog").showModal();
+  }
+};
 document.querySelectorAll(".skin-option").forEach(
   (b) =>
     (b.onclick = () => {
@@ -248,6 +298,7 @@ document.querySelectorAll("[data-filter]").forEach(
   (b) =>
     (b.onclick = () => {
       filter = b.dataset.filter;
+      closeTools();
       render();
     }),
 );
@@ -314,6 +365,7 @@ function connectionFields() {
 }
 $("mode").onchange = connectionFields;
 $("settings").onclick = () => {
+  closeTools();
   $("mode").value = state.settings.mode;
   $("cli-path").value = state.settings.cliPath;
   $("topmost").checked = state.settings.topMost;
